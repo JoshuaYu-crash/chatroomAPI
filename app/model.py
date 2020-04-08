@@ -47,7 +47,7 @@ class Room(db.Model):
 
 
 class UserRoom(db.Model):
-    __tablename__ = 'tableroom'
+    __tablename__ = 'userroom'
     id = db.Column(db.Integer, primary_key=True)
     room_id = db.Column(db.Integer)
     user_id = db.Column(db.Integer)

@@ -38,13 +38,23 @@ def Register():
     )
 
 
-# 登出
+# 用户登出
 @user_bp.route('/apiv1/user/delete', methods=["POST"])
 def UserDelete():
     username = request.json.get('username')
     user = User.query.filter_by(username=username).first()
     if user is None:
         return no_person()
+    if user.is_roomowner is True:
+        roomid = UserRoom.query.filter_by(user_id=user.id).first().room_id
+        Message.query.filter_by(room_id=roomid).delete()
+        User.query.filter_by(user_room=roomid).delete()
+        room = Room.query.get(roomid)
+        # print(roomid)
+        # print(room)
+        db.session.delete(room)
+    else:
+        Message.query.filter_by(user_id=user.id).delete()
     db.session.delete(user)
     db.session.commit()
     return jsonify(
@@ -53,6 +63,23 @@ def UserDelete():
             "message": "",
         }
     )
+
+
+# 关闭房间
+@user_bp.route('/apiv1/room/delete/')
+def RoomDelete():
+    roomname = request.json.get('roomname')
+    roomowner = request.json.get('roomowner')
+    user = User.query.filter_by(username=roomowner).first()
+    room = Room.query.filter_by(room_name=roomname).first()
+    if User.query.get(user.id).room_id != room.id:
+        return no_person(message="No auth")
+    Message.query.filter_by(room_id=room.id).delete()
+    users = User.query.filter_by(user_room=room.id).all()
+    for us in users:
+        us.user_room = None
+    db.session.delete(room)
+    db.session.commit()
 
 
 # 创建房间
@@ -71,11 +98,14 @@ def CreateRoom():
     )
     user = User.query.filter_by(username=roomowner).first()
     user.is_roomowner = True
+
+    db.session.add(new_room)
+
+    db.session.commit()
     userroom = UserRoom(
         user_id=user.id,
         room_id=new_room.id
     )
-    db.session.add(new_room)
     db.session.add(userroom)
     db.session.commit()
     return jsonify(
@@ -147,7 +177,7 @@ def GetRoomAvatar(roomname):
     if room is None:
         return no_person("Room not exist")
     print(room.room_avatar)
-    return send_from_directory(UPLOAD_PATH, room.room_avatar, as_attachment=True)
+    return send_from_directory(UPLOAD_PATH, room.room_avatar)
 
 
 # 用户头像获取
@@ -194,4 +224,31 @@ def RoomQuery():
             "roomurl": "http://127.0.0.1/apiv1/joinroom/" + room.room_name
         }
     )
+
+
+# 房间之前信息
+@user_bp.route('/apiv1/room/message/<roomname>')
+def GetMessage(roomname):
+    room = Room.query.filter_by(room_name=roomname).first()
+    if room is None:
+        return no_person("Room not exist")
+    messages = Message.query.filter_by(room_id=room.id).all()
+    templist = []
+    for message in messages:
+        user = User.query.get(message.user_id)
+        temp = {
+            "username": user.username,
+            "message": message.message_text,
+            "sendtime": message.message_time
+        }
+        templist.append(temp)
+    return jsonify(
+        {
+            "status": 0,
+            "message": "",
+            "data": templist
+        }
+    )
+
+
 
