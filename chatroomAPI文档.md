@@ -27,8 +27,9 @@
 | 参数名     | 必选 | 类型   | 说明     |
 | ---------- | ---- | ------ | -------- |
 | username   | 是   | String | 用户名   |
-| userdetail | 是   | Text   | 自我介绍 |
+| userdetail | 否   | Text   | 自我介绍 |
 | phone      | 否   | String | 手机号   |
+| location   | 否   | String | 地址     |
 
 **请求示例:**
 
@@ -454,5 +455,95 @@
 
 - 检查用户是否为房主，如果是则先删除所有消息，再删除所有用户（直接在数据库中删除），如果不是，则删除该用户所有历史消息
 
+### 修改用户信息
 
+**请求URL：**
 
+- <http://127.0.0.1:5000/apiv1/user/modify>
+
+**请求方式：**
+
+- POST
+
+**参数：**
+
+| 参数名     | 必选 | 类型   | 说明     |
+| ---------- | ---- | ------ | -------- |
+| username   | 是   | String | 用户名   |
+| userdetail | 否   | Text   | 自我介绍 |
+| phone      | 否   | String | 手机号   |
+| location   | 否   | String | 地址     |
+
+**请求示例:**
+
+```json
+{
+    "username":"testuser",
+    "newusername":"testuser1",
+    "userdetail":"哈哈",
+    "phone":"13800000000",
+    "location":"福建省"
+}
+```
+
+**返回示例：**
+
+```json
+{
+    "status": 0,
+    "message": "",
+    "data":{
+       "username":"testuser1",
+        "userdetail":"哈哈",
+        "phone":"13800000000",
+        "location":"福建省" 
+    }
+}
+```
+
+**备注：**
+
+- 无
+
+### 修改房间信息
+
+**请求URL：**
+
+- <http://127.0.0.1:5000/apiv1/room/modify>
+
+**请求方式：**
+
+- POST
+
+**参数：**
+
+| 参数名     | 必选 | 类型   | 说明     |
+| ---------- | ---- | ------ | -------- |
+| roomname   | 是   | String | 房间名   |
+| roomdetail | 否   | Text   | 房间介绍 |
+
+**请求示例:**
+
+```json
+{
+    "roomname":"testroom",
+    "roomdetail":"哈哈哈",
+}
+```
+
+**返回示例：**
+
+```json
+{
+    "status": 0,
+    "message": "",
+    "data":{
+       "roomname":"testroom",
+        "roomdetail":"哈哈哈",
+    }
+}
+```
+
+**备注：**
+
+- 无
