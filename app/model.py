@@ -8,6 +8,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
     phone = db.Column(db.String(100), unique=True)
+    location = db.Column(db.String(100))
     user_avatar = db.Column(db.String(100), unique=True)
     user_detail = db.Column(db.Text)
     user_room = db.Column(db.Integer, db.ForeignKey('room.id'))

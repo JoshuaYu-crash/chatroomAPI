@@ -14,6 +14,7 @@ def Register():
     username = request.json.get('username')
     userdetail = request.json.get('userdetail')
     phone = request.json.get('phone')
+    location = request.json.get('json')
     if User.query.filter_by(username=username).first() is not None:
         return data_duplication(message="Duplicate username")
     if User.query.filter_by(phone=phone).first() is not None:
@@ -21,7 +22,8 @@ def Register():
     user = User(
         username=username,
         user_detail=userdetail,
-        phone=phone
+        phone=phone,
+        location=location
     )
     db.session.add(user)
     db.session.commit()
@@ -32,7 +34,8 @@ def Register():
             "data": {
                 "username": username,
                 "userdetail": userdetail,
-                "phone": phone
+                "phone": phone,
+                "location": location
             }
         }
     )
@@ -65,7 +68,7 @@ def UserDelete():
     )
 
 
-# 关闭房间
+# 解散房间
 @user_bp.route('/apiv1/room/delete/')
 def RoomDelete():
     roomname = request.json.get('roomname')
@@ -73,7 +76,7 @@ def RoomDelete():
     user = User.query.filter_by(username=roomowner).first()
     room = Room.query.filter_by(room_name=roomname).first()
     if User.query.get(user.id).room_id != room.id:
-        return no_person(message="No auth")
+        return no_person(message="Permission denied")
     Message.query.filter_by(room_id=room.id).delete()
     users = User.query.filter_by(user_room=room.id).all()
     for us in users:
@@ -98,10 +101,9 @@ def CreateRoom():
     )
     user = User.query.filter_by(username=roomowner).first()
     user.is_roomowner = True
-
     db.session.add(new_room)
-
     db.session.commit()
+
     userroom = UserRoom(
         user_id=user.id,
         room_id=new_room.id
@@ -251,4 +253,61 @@ def GetMessage(roomname):
     )
 
 
+# 修改用户信息
+@user_bp.route('/apiv1/user/modify')
+def ModifyUser():
+    username = request.json.get('username')
+    newusername = request.json.get('newusername')
+    userdetail = request.json.get('userdetail')
+    phone = request.json.get('phone')
+    location = request.json.get('json')
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        return no_person()
+    if newusername is not None:
+        user.username = newusername
+    if userdetail is not None:
+        user.user_detail = userdetail
+    if phone is not None:
+        user.phone = phone
+    if location is not None:
+        user.location = location
+    db.session.commit()
+    return jsonify(
+        {
+            "status": 0,
+            "message": "",
+            "data": {
+                "username": user.username,
+                "userdetail": user.user_detail,
+                "phone": user.phone,
+                "location": user.location
+            }
+        }
+    )
 
+
+# 修改房间信息
+@user_bp.route('/apiv1/room/modify')
+def ModifyUser():
+    roomname = request.json.get('roomname')
+    newroomname = request.json.get('newroomname')
+    roomdetail = request.json.get('roomdetail')
+    room = User.query.filter_by(username=roomname).first()
+    if room is None:
+        return no_person()
+    if newroomname is not None:
+        room.username = newroomname
+    if roomdetail is not None:
+        room.user_detail = roomdetail
+    db.session.commit()
+    return jsonify(
+        {
+            "status": 0,
+            "message": "",
+            "data": {
+                "username": room.room_name,
+                "userdetail": room.room_detail
+            }
+        }
+    )
