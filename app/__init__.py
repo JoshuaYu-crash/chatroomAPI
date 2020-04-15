@@ -11,9 +11,11 @@ db = SQLAlchemy(app)
 socketio = SocketIO
 
 from app.api.v1.user import user_bp
-from app.api.v1.chat import chat_bp
+# from app.api.v1.chat import chat_bp
 
 app.register_blueprint(user_bp)
-app.register_blueprint(chat_bp)
+# app.register_blueprint(chat_bp)
+
+
 
 

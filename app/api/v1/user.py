@@ -14,7 +14,7 @@ def Register():
     username = request.json.get('username')
     userdetail = request.json.get('userdetail')
     phone = request.json.get('phone')
-    location = request.json.get('json')
+    location = request.json.get('location')
     if User.query.filter_by(username=username).first() is not None:
         return data_duplication(message="Duplicate username")
     if User.query.filter_by(phone=phone).first() is not None:
@@ -193,35 +193,43 @@ def GetUserAvatar(username):
 
 
 # 查找个人信息
-@user_bp.route('/apiv1/user/query')
+@user_bp.route('/apiv1/user/query', methods=["POST"])
 def UserQuery():
-    username = request.json.get["username"]
+    username = request.json.get("username")
     user = User.query.filter_by(username=username).first()
     if user is None:
         return no_person()
+    if user.user_avatar is None:
+        useravatar = None
+    else:
+        useravatar = "http://127.0.0.1/apiv1/user/avatar/download/" + user.user_avatar
     return jsonify(
         {
             "username": user.username,
             "userdetail": user.user_detail,
             "phone": user.phone,
-            "useravatar": "http://127.0.0.1/apiv1/user/avatar/download/" + user.user_avatar
+            "useravatar": useravatar
         }
     )
 
 
 # 查找房间信息
-@user_bp.route('/apiv1/user/query')
+@user_bp.route('/apiv1/room/query', methods=["POST"])
 def RoomQuery():
-    roomname = request.json.get["roomname"]
+    roomname = request.json.get("roomname")
     room = Room.query.filter_by(room_name=roomname).first()
     if room is None:
         return no_person()
     roomowner = UserRoom.query.get(room.id)
+    if room.room_avatar is None:
+        roomavatar = None
+    else:
+        roomavatar = "http://127.0.0.1/apiv1/room/avatar/download/" + room.room_avatar
     return jsonify(
         {
             "roomname": room.room_name,
             "roomdetail": room.room_detail,
-            "roomavatar": "http://127.0.0.1/apiv1/room/avatar/download/" + room.room_avatar,
+            "roomavatar": roomavatar,
             "roomowner": roomowner.user_id,
             "roomurl": "http://127.0.0.1/apiv1/joinroom/" + room.room_name
         }
@@ -254,13 +262,13 @@ def GetMessage(roomname):
 
 
 # 修改用户信息
-@user_bp.route('/apiv1/user/modify')
+@user_bp.route('/apiv1/user/modify', methods=["POST"])
 def ModifyUser():
     username = request.json.get('username')
     newusername = request.json.get('newusername')
     userdetail = request.json.get('userdetail')
     phone = request.json.get('phone')
-    location = request.json.get('json')
+    location = request.json.get('location')
     user = User.query.filter_by(username=username).first()
     if user is None:
         return no_person()
@@ -273,6 +281,8 @@ def ModifyUser():
     if location is not None:
         user.location = location
     db.session.commit()
+
+    user = User.query.filter_by(username=username).first()
     return jsonify(
         {
             "status": 0,
@@ -288,8 +298,8 @@ def ModifyUser():
 
 
 # 修改房间信息
-@user_bp.route('/apiv1/room/modify')
-def ModifyUser():
+@user_bp.route('/apiv1/room/modify', methods=["POST"])
+def ModifyRoom():
     roomname = request.json.get('roomname')
     newroomname = request.json.get('newroomname')
     roomdetail = request.json.get('roomdetail')
