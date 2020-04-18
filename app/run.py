@@ -1,7 +1,8 @@
-from app import app, db, socketio
+from app import app, db
+from app.api.v1.chat import socketio
 
 if __name__ == '__main__':
     db.drop_all()
     db.create_all()
-    app.debug = True
-    socketio.run(app)
+
+    socketio.run(app=app, debug=True, log_output=True)

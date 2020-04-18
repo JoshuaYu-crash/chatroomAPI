@@ -1,20 +1,31 @@
 from flask import Blueprint, request
 from app.model import *
-from app.api.v1.error import *
-from app import socketio
-from flask_socketio import join_room, leave_room, send
+from flask_socketio import SocketIO
+from app import app
+from flask_socketio import join_room, leave_room, emit
 import json
+from datetime import datetime
+
+socketio = SocketIO(app)
 
 
-chat_bp = Blueprint('chat', __name__)
+@socketio.on('owner join')
+def OwnerJoin(data):
+    username = data['username']
+    roomname = data['roomname']
+    join_room(roomname)
+
 
 
 @socketio.on('join')
 def on_join(data):
+    data = json.loads(data)
+    # print(type(data))
+    # print(data)
     username = data['username']
     roomname = data['roomname']
     user = User.query.filter_by(username=username).first()
-    room = Room.query.filter_by(roomname=roomname).first()
+    room = Room.query.filter_by(room_name=roomname).first()
 
     user.user_room=room.id
     db.session.commit()
@@ -22,18 +33,19 @@ def on_join(data):
     join_room(roomname)
     json_msg = json.dumps({
         "status": 0,
-        "data": username + ' has entered the room.',
-        "previous message": "http://127.0.0.1:5000/apiv1/room/message/" + roomname
+        "data": username
     })
-    send(json_msg, json=True, room=roomname)
+    # print(json_msg)
+    emit('message', json_msg, room=roomname, broadcast=True, include_self=False)
 
 
 @socketio.on('leave')
 def on_leave(data):
+    data = json.loads(data)
     username = data['username']
     roomname = data['roomname']
     user = User.query.filter_by(username=username).first()
-    room = Room.query.filter_by(roomname=roomname).first()
+    room = Room.query.filter_by(room_name=roomname).first()
 
     user.user_room = None
     db.session.commit()
@@ -41,30 +53,43 @@ def on_leave(data):
     leave_room(roomname)
     json_msg = json.dumps({
         "status": 0,
-        "data": username + ' has left the room.',
+        "data": username,
 
     })
-    send(json_msg, json=True, room=roomname)
+    # print(json_msg)
+    emit('message', json_msg, json=True, room=roomname, broadcast=True, include_self=False)
 
 
 @socketio.on('new message')
 def NewMessage(data):
+    data = json.loads(data)
+    print(data)
     username = data['username']
     roomname = data['roomname']
     message = data['message']
-    sendtime = data['sendtime']
 
     user = User.query.filter_by(username=username).first()
-    room = Room.query.filter_by(roomname=roomname).first()
+    room = Room.query.filter_by(room_name=roomname).first()
 
     new_message = Message(
         message_text=message,
-        message_time=sendtime,
         user_id=user.id,
         room_id=room.id
     )
     db.session.add(new_message)
     db.session.commit()
 
-    send(data, json=True, room=roomname)
+    message_time = datetime.now()
+
+    json_msg = json.dumps({
+        "status": 0,
+        "data": {
+            "useranme":username,
+            "roomname":roomname,
+            "message":message,
+            "sendttime":message_time,
+        }
+    })
+
+    emit('message', json_msg, room=roomname, broadcast=True, include_self=False)
 

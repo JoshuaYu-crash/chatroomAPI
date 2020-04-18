@@ -547,3 +547,91 @@
 **备注：**
 
 - 无
+
+## socket接口事件（http://127.0.0.1:5000/）
+
+### join
+
+**参数：**
+
+| 参数名   | 必选 | 类型   | 说明   |
+| -------- | ---- | ------ | ------ |
+| username | 是   | String | 用户名 |
+| roomname | 是   | String | 房间名 |
+
+**返回示例：**
+
+- 消息名：message
+
+```json
+{
+    "status": 0,
+    "data":{
+       "status": 0,
+       "data":{
+           "action":"in",
+           "username":"testuser"
+    }
+}
+```
+
+**备注：**
+
+- json格式
+
+### leave
+
+**参数：**
+
+| 参数名   | 必选 | 类型   | 说明   |
+| -------- | ---- | ------ | ------ |
+| username | 是   | String | 用户名 |
+| roomname | 是   | String | 房间名 |
+
+**返回示例：**
+
+- 消息名：message
+
+```json
+{
+    "status": 0,
+    "data":{
+        "action":"out",
+        "username":"testuser"
+    }
+}
+```
+
+**备注：**
+
+- json格式
+
+### new message
+
+**参数：**
+
+| 参数名   | 必选 | 类型   | 说明     |
+| -------- | ---- | ------ | -------- |
+| username | 是   | String | 用户名   |
+| roomname | 是   | String | 房间名   |
+| message  | 是   | String | 消息内容 |
+
+**返回示例：**
+
+- 消息名：message
+
+```json
+{
+    "status": 0,
+    "data":{
+       "useranme":"testuser",
+       "roomname":"testroom",
+       "message":"hello",
+       "sendttime":"2020-04-06 14:10:28"
+    }
+}
+```
+
+**备注：**
+
+- json格式
