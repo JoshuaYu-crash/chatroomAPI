@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 from flask import Blueprint, request, jsonify, send_from_directory
 from app.model import *
 from app.api.v1.error import *
@@ -47,11 +48,13 @@ def UserDelete():
     username = request.json.get('username')
     user = User.query.filter_by(username=username).first()
     if user is None:
-        return no_person()
+        return no_person("User not exist")
     if user.is_roomowner is True:
         roomid = UserRoom.query.filter_by(user_id=user.id).first().room_id
         Message.query.filter_by(room_id=roomid).delete()
-        User.query.filter_by(user_room=roomid).delete()
+        users = User.query.filter_by(user_room=roomid).all()
+        for usr in users:
+            usr.user_room = None
         room = Room.query.get(roomid)
         # print(roomid)
         # print(room)
@@ -154,12 +157,12 @@ def UserAvatar(username):
         return no_person()
     if not os.path.exists(UPLOAD_PATH):
         os.makedirs(UPLOAD_PATH)
-    file = request.files('file')
+    file = request.files['file']
     filename = file.filename
     if allowed_file(filename):
         new_filename = random_filename(filename)
         file.save(os.path.join(UPLOAD_PATH, new_filename))
-        user= User.query.filter_by(username=username).first()
+        user = User.query.filter_by(username=username).first()
         user.user_avatar = new_filename
         db.session.commit()
         return jsonify(
@@ -221,6 +224,7 @@ def RoomQuery():
     if room is None:
         return no_person()
     roomowner = UserRoom.query.get(room.id)
+    owner = User.query.get(roomowner.user_id)
     if room.room_avatar is None:
         roomavatar = None
     else:
@@ -230,7 +234,7 @@ def RoomQuery():
             "roomname": room.room_name,
             "roomdetail": room.room_detail,
             "roomavatar": roomavatar,
-            "roomowner": roomowner.user_id,
+            "roomowner": owner.username,
             "roomurl": "http://127.0.0.1/apiv1/joinroom/" + room.room_name
         }
     )

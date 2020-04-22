@@ -1,20 +1,14 @@
+# -*- coding: UTF-8 -*-
 from flask import Blueprint, request
 from app.model import *
 from flask_socketio import SocketIO
 from app import app
 from flask_socketio import join_room, leave_room, emit
 import json
-from datetime import datetime
+import datetime
+from app.utils import DateEncoder
 
 socketio = SocketIO(app)
-
-
-@socketio.on('owner join')
-def OwnerJoin(data):
-    username = data['username']
-    roomname = data['roomname']
-    join_room(roomname)
-
 
 
 @socketio.on('join')
@@ -26,9 +20,9 @@ def on_join(data):
     roomname = data['roomname']
     user = User.query.filter_by(username=username).first()
     room = Room.query.filter_by(room_name=roomname).first()
-
-    user.user_room=room.id
-    db.session.commit()
+    if user.is_roomowner != True:
+        user.user_room = room.id
+        db.session.commit()
 
     join_room(roomname)
     json_msg = json.dumps({
@@ -70,26 +64,26 @@ def NewMessage(data):
 
     user = User.query.filter_by(username=username).first()
     room = Room.query.filter_by(room_name=roomname).first()
-
+    message_time = datetime.datetime.now()
     new_message = Message(
         message_text=message,
         user_id=user.id,
-        room_id=room.id
+        room_id=room.id,
+        message_time=message_time
     )
     db.session.add(new_message)
     db.session.commit()
 
-    message_time = datetime.now()
 
-    json_msg = json.dumps({
+    msg = {
         "status": 0,
         "data": {
-            "useranme":username,
-            "roomname":roomname,
-            "message":message,
-            "sendttime":message_time,
+            "useranme": username,
+            "roomname": roomname,
+            "message": message,
+            "sendttime": message_time,
         }
-    })
+    }
+    json_msg = json.dumps(msg, cls=DateEncoder)
 
     emit('message', json_msg, room=roomname, broadcast=True, include_self=False)
-

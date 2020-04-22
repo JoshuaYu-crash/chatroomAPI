@@ -1,9 +1,12 @@
+# -*- coding: UTF-8 -*-
 import time
 import hmac
 import base64
 from app.setting import ALLOWED_EXTENSIONS
 import uuid
 import os
+import json
+import datetime
 
 
 # 生成token 入参：用户id
@@ -48,3 +51,14 @@ def random_filename(filename):
     extension = os.path.splitext(filename)[1]
     new_filename = uuid.uuid4().hex + extension
     return new_filename
+
+class DateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+
+        elif isinstance(obj, datetime.date):
+            return obj.strftime("%Y-%m-%d")
+
+        else:
+            return json.JSONEncoder.default(self, obj)
