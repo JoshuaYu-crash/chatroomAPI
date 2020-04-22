@@ -114,7 +114,7 @@
 
 **请求URL：**
 
-- <http://127.0.0.1:5000/apiv1/user/avatar/upload/username>
+- <http://127.0.0.1:5000/apiv1/user/avatar/username>
 
 **请求方式：**
 
@@ -128,7 +128,7 @@
 
 **请求示例:**
 
-<http://127.0.0.1:5000/apiv1/user/avatar/upload/testuser>
+<http://127.0.0.1:5000/apiv1/user/avatar/testuser>
 
 **返回示例：**
 
