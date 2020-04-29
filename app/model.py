@@ -42,6 +42,7 @@ class Room(db.Model):
     room_detail = db.Column(db.Text)
     users = db.relationship('User', backref='room')
     messages = db.relationship('Message', backref='room')
+    online_users = db.Column(db.Integer, default=1)
 
 
     def __repr__(self):

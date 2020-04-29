@@ -214,7 +214,7 @@
         "username": "testuser",
         "userdetail": "哈哈",
     	"phone": "13800000000",
-    	"useravatar": "http://127.0.0.1/apiv1/user/avatar/download/testuser"
+    	"useravatar": "/apiv1/user/avatar/download/testuser"
 	}
 }
 ```
@@ -257,10 +257,11 @@
     "message": "",
     "data":{
         "roomname": "testuser",
+        "onlineusers": 1,
         "roomdetail": "哈哈哈",
-    	"roomavatar": "",
+    	"roomavatar": "/apiv1/user/avatar/download/testroom",
     	"roomowner": "testuser",
-    	"roomurl": "http://127.0.0.1/apiv1/joinroom/testroom"
+    	"roomurl": "/apiv1/joinroom/testroom"
 	}
 }
 ```
@@ -360,11 +361,13 @@
     "data": [
         {
             "username": "testuser",
+            "useravatar": "/apiv1/user/avatar/download/testuser",
             "message": "666",
             "sendtime": "2020-04-06 14:00:28"
         },
         {
             "username": "testuser",
+            "useravatar": "/apiv1/user/avatar/download/testuser",
             "message": "666",
             "sendtime": "2020-04-06 14:10:28"
         }
@@ -567,10 +570,10 @@
 {
     "status": 0,
     "data":{
-       "status": 0,
-       "data":{
-           "action":"in",
-           "username":"testuser"
+          "action":"in",
+       	  "onlineusers":1,
+          "username":"testuser",
+          "useravatar": "/apiv1/user/avatar/download/testuser"
     }
 }
 ```
@@ -597,7 +600,9 @@
     "status": 0,
     "data":{
         "action":"out",
-        "username":"testuser"
+        "onlineusers":1,
+        "username":"testuser",
+        "useravatar": "/apiv1/user/avatar/download/testuser"
     }
 }
 ```
@@ -625,9 +630,37 @@
     "status": 0,
     "data":{
        "useranme":"testuser",
+        "useravatar": "/apiv1/user/avatar/download/testuser",
        "roomname":"testroom",
        "message":"hello",
        "sendttime":"2020-04-06 14:10:28"
+    }
+}
+```
+
+**备注：**
+
+- json格式
+
+### close
+
+**参数：**
+
+| 参数名    | 必选 | 类型   | 说明     |
+| --------- | ---- | ------ | -------- |
+| roomname  | 是   | String | 房间名   |
+| roomowner | 是   | String | 房间主人 |
+
+**返回示例：**
+
+- 消息名：message
+
+```json
+{
+    "status": 0,
+    "data":{
+        "action":"close",
+        "roomname":"testroom"
     }
 }
 ```

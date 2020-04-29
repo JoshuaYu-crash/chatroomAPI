@@ -8,7 +8,6 @@ from app.utils import allowed_file,random_filename
 
 user_bp = Blueprint('user', __name__)
 
-
 # 用户注册
 @user_bp.route('/apiv1/user/register', methods=["POST"])
 def Register():
@@ -162,7 +161,7 @@ def UserAvatar(username):
     if allowed_file(filename):
         new_filename = random_filename(filename)
         file.save(os.path.join(UPLOAD_PATH, new_filename))
-        user = User.query.filter_by(username=username).first()
+        user= User.query.filter_by(username=username).first()
         user.user_avatar = new_filename
         db.session.commit()
         return jsonify(
@@ -182,7 +181,10 @@ def GetRoomAvatar(roomname):
     if room is None:
         return no_person("Room not exist")
     print(room.room_avatar)
-    return send_from_directory(UPLOAD_PATH, room.room_avatar)
+    if room.room_avatar:
+        return send_from_directory(UPLOAD_PATH, room.room_avatar)
+    else:
+        return None
 
 
 # 用户头像获取
@@ -192,7 +194,10 @@ def GetUserAvatar(username):
     if user is None:
         return no_person("Room not exist")
     print(user.user_avatar)
-    return send_from_directory(UPLOAD_PATH, user.user_avatar, as_attachment=True)
+    if user.user_avatar:
+        return send_from_directory(UPLOAD_PATH, user.user_avatar)
+    else:
+        return None
 
 
 # 查找个人信息
@@ -205,7 +210,7 @@ def UserQuery():
     if user.user_avatar is None:
         useravatar = None
     else:
-        useravatar = "http://127.0.0.1/apiv1/user/avatar/download/" + user.user_avatar
+        useravatar = "/apiv1/user/avatar/download/" + user.user_avatar
     return jsonify(
         {
             "username": user.username,
@@ -228,14 +233,15 @@ def RoomQuery():
     if room.room_avatar is None:
         roomavatar = None
     else:
-        roomavatar = "http://127.0.0.1/apiv1/room/avatar/download/" + room.room_avatar
+        roomavatar = "/apiv1/room/avatar/download/" + room.room_avatar
     return jsonify(
         {
             "roomname": room.room_name,
+            "onlineusers": room.online_users,
             "roomdetail": room.room_detail,
             "roomavatar": roomavatar,
             "roomowner": owner.username,
-            "roomurl": "http://127.0.0.1/apiv1/joinroom/" + room.room_name
+            "roomurl": "http://127.0.0.1:5000/apiv1/joinroom/" + room.room_name
         }
     )
 
@@ -250,8 +256,13 @@ def GetMessage(roomname):
     templist = []
     for message in messages:
         user = User.query.get(message.user_id)
+        if user.user_avatar:
+            useravatar = "/apiv1/user/avatar/download/" + user.username
+        else:
+            useravatar = None
         temp = {
             "username": user.username,
+            "useravatar":useravatar,
             "message": message.message_text,
             "sendtime": message.message_time
         }
@@ -260,7 +271,10 @@ def GetMessage(roomname):
         {
             "status": 0,
             "message": "",
-            "data": templist
+            "data": {
+                "onlineusers": room.online_users,
+                "msg": templist
+            }
         }
     )
 

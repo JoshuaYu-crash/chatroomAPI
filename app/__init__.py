@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 # from flask_socketio import SocketIO
 
@@ -17,6 +17,8 @@ from app.api.v1.user import user_bp
 app.register_blueprint(user_bp)
 # app.register_blueprint(chat_bp)
 
-
+@app.route("/index")
+def Index():
+    return render_template("index.html")
 
 
