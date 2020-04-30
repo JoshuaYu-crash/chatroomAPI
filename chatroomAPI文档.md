@@ -358,20 +358,22 @@
 {
     "status": 0,
     "message": "",
-    "data": [
-        {
-            "username": "testuser",
-            "useravatar": "/apiv1/user/avatar/download/testuser",
-            "message": "666",
-            "sendtime": "2020-04-06 14:00:28"
-        },
-        {
-            "username": "testuser",
-            "useravatar": "/apiv1/user/avatar/download/testuser",
-            "message": "666",
-            "sendtime": "2020-04-06 14:10:28"
-        }
-    ]
+    "data": {
+        "onlineusers": 1,
+        "msg":[
+            {
+                "username": "testuser",
+                "useravatar": "/apiv1/user/avatar/download/testuser",
+                "message": "666",
+                "sendtime": "2020-04-06 14:00:28"
+            },
+            {
+                "username": "testuser",
+                "useravatar": "/apiv1/user/avatar/download/testuser",
+                "message": "666",
+                "sendtime": "2020-04-06 14:10:28"
+            }
+        ]
 }
 ```
 
